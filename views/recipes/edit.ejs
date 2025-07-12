@@ -1,0 +1,21 @@
+<%- include('../partials/header') %>
+
+<h2>Edit Recipe</h2>
+
+<form action="/recipes/<%= recipe._id %>" method="POST">
+  <label>Title:</label><br/>
+  <input type="text" name="title" value="<%= recipe.title %>" required /><br/>
+
+  <label>Description:</label><br/>
+  <textarea name="description"><%= recipe.description %></textarea><br/>
+
+  <label>Ingredients (comma-separated):</label><br/>
+  <input type="text" name="ingredients" value="<%= recipe.ingredients.join(', ') %>" /><br/>
+
+  <label>Steps (one per line):</label><br/>
+  <textarea name="steps" rows="5"><%= recipe.steps.join('\n') %></textarea><br/>
+
+  <button type="submit">Update Recipe</button>
+</form>
+
+<%- include('../partials/footer') %>

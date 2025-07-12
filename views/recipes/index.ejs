@@ -1,0 +1,18 @@
+<%- include('../partials/header') %>
+
+<h2>All Recipes</h2>
+
+<% if (user) { %>
+  <a href="/recipes/new">Create New Recipe</a>
+<% } %>
+
+<ul>
+  <% recipes.forEach(recipe => { %>
+    <li>
+      <a href="/recipes/<%= recipe._id %>"><%= recipe.title %></a>
+      by <%= recipe.createdBy ? recipe.createdBy.email : 'Unknown' %>
+    </li>
+  <% }) %>
+</ul>
+
+<%- include('../partials/footer') %>

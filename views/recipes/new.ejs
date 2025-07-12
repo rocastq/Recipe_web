@@ -1,0 +1,21 @@
+<%- include('../partials/header') %>
+
+<h2>New Recipe</h2>
+
+<form action="/recipes" method="POST">
+  <label>Title:</label><br/>
+  <input type="text" name="title" required /><br/>
+
+  <label>Description:</label><br/>
+  <textarea name="description"></textarea><br/>
+
+  <label>Ingredients (comma-separated):</label><br/>
+  <input type="text" name="ingredients" /><br/>
+
+  <label>Steps (one per line):</label><br/>
+  <textarea name="steps" rows="5"></textarea><br/>
+
+  <button type="submit">Create Recipe</button>
+</form>
+
+<%- include('../partials/footer') %>

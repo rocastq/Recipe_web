@@ -1,0 +1,30 @@
+<%- include('../partials/header') %>
+
+<h2><%= recipe.title %></h2>
+<p><%= recipe.description %></p>
+<p>Created by: <%= recipe.createdBy ? recipe.createdBy.email : 'Unknown' %></p>
+
+<h3>Ingredients</h3>
+<ul>
+  <% recipe.ingredients.forEach(i => { %>
+    <li><%= i %></li>
+  <% }) %>
+</ul>
+
+<h3>Steps</h3>
+<ol>
+  <% recipe.steps.forEach(s => { %>
+    <li><%= s %></li>
+  <% }) %>
+</ol>
+
+<% if (user && recipe.createdBy && recipe.createdBy._id.toString() === user._id.toString()) { %>
+  <a href="/recipes/<%= recipe._id %>/edit">Edit</a>
+  <form action="/recipes/<%= recipe._id %>/delete" method="POST" style="display:inline;">
+    <button type="submit">Delete</button>
+  </form>
+<% } %>
+
+<a href="/recipes">Back to recipes</a>
+
+<%- include('../partials/footer') %>
