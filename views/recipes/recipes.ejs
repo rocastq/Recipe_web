@@ -7,9 +7,9 @@
 <body>
 <div class="container mt-4">
   <h1>Recipes</h1>
-  <a href="/recipes/new" class="btn btn-primary mb-3">Add Recipe</a>
-  <a href="/auth/logout" class="btn btn-secondary float-end">Logout</a>
-  <h2>Public Recipes</h2>
+  <a href="/recipes/new" class="btn btn-primary">Add Recipe</a>
+  <a href="/logout" class="btn btn-secondary float-end">Logout</a>
+  <h2 class="mt-4">Public Recipes</h2>
   <div class="row">
     <% publicRecipes.forEach(r => { %>
       <div class="col-md-4 mb-3">
@@ -26,7 +26,7 @@
       </div>
     <% }) %>
   </div>
-  <h2>Your Private Recipes</h2>
+  <h2 class="mt-4">Your Private Recipes</h2>
   <div class="row">
     <% privateRecipes.forEach(r => { %>
       <div class="col-md-4 mb-3">
@@ -39,7 +39,7 @@
             <p class="card-text"><%= r.description %></p>
             <div class="d-flex justify-content-between">
               <a href="/recipes/<%= r._id %>/edit" class="btn btn-sm btn-warning">Edit</a>
-              <form action="/recipes/<%= r._id %>/delete" method="POST" style="display:inline;">
+              <form action="/recipes/<%= r._id %>?_method=DELETE" method="POST" style="display:inline;">
                 <button class="btn btn-sm btn-danger">Delete</button>
               </form>
             </div>

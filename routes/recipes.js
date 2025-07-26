@@ -1,98 +1,36 @@
 const express = require('express');
-const Recipe = require('../models/Recipe');
-const { ensureAuthenticated } = require('../middleware/auth');
-
 const router = express.Router();
+const recipeController = require('../controllers/recipeController');
+const multer = require('multer');
+const path = require('path');
 
-// Get all recipes (public)
-router.get('/', async (req, res) => {
-  const recipes = await Recipe.find().populate('createdBy', 'email');
-  res.render('recipes/index', { recipes });
-});
-
-// New recipe form
-router.get('/new', ensureAuthenticated, (req, res) => {
-  res.render('recipes/new');
-});
-
-// Create new recipe
-router.post('/', ensureAuthenticated, async (req, res) => {
-  const { title, description, ingredients, steps } = req.body;
-
-  const recipe = new Recipe({
-    title,
-    description,
-    ingredients: ingredients.split(',').map(i => i.trim()),
-    steps: steps.split('\n').map(s => s.trim()),
-    createdBy: req.user.id,
-  });
-
-  await recipe.save();
-  req.flash('success_msg', 'Recipe created!');
-  res.redirect('/recipes');
-});
-
-// View one recipe
-router.get('/:id', async (req, res) => {
-  const recipe = await Recipe.findById(req.params.id).populate('createdBy', 'email');
-  if (!recipe) {
-    req.flash('error_msg', 'Recipe not found');
-    return res.redirect('/recipes');
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname));
   }
-  res.render('recipes/show', { recipe });
 });
+const upload = multer({ storage: storage });
 
-// Edit recipe form
-router.get('/:id/edit', ensureAuthenticated, async (req, res) => {
-  const recipe = await Recipe.findById(req.params.id);
-  if (!recipe) {
-    req.flash('error_msg', 'Recipe not found');
-    return res.redirect('/recipes');
-  }
-  // Only creator can edit
-  if (!recipe.createdBy.equals(req.user._id)) {
-    req.flash('error_msg', 'Not authorized');
-    return res.redirect('/recipes');
-  }
-  res.render('recipes/edit', { recipe });
-});
+function requireLogin(req, res, next) {
+  if (!req.session.userId) return res.redirect('/auth/login');
+  next();
+}
 
-// Update recipe
-router.post('/:id', ensureAuthenticated, async (req, res) => {
-  const recipe = await Recipe.findById(req.params.id);
-  if (!recipe) {
-    req.flash('error_msg', 'Recipe not found');
-    return res.redirect('/recipes');
-  }
-  if (!recipe.createdBy.equals(req.user._id)) {
-    req.flash('error_msg', 'Not authorized');
-    return res.redirect('/recipes');
-  }
+router.get('/', requireLogin, recipeController.listRecipes);
 
-  recipe.title = req.body.title;
-  recipe.description = req.body.description;
-  recipe.ingredients = req.body.ingredients.split(',').map(i => i.trim());
-  recipe.steps = req.body.steps.split('\n').map(s => s.trim());
+router.get('/new', requireLogin, recipeController.newRecipeForm);
 
-  await recipe.save();
-  req.flash('success_msg', 'Recipe updated');
-  res.redirect(`/recipes/${recipe.id}`);
-});
+router.post('/', requireLogin, upload.single('image'), recipeController.createRecipe);
 
-// Delete recipe
-router.post('/:id/delete', ensureAuthenticated, async (req, res) => {
-  const recipe = await Recipe.findById(req.params.id);
-  if (!recipe) {
-    req.flash('error_msg', 'Recipe not found');
-    return res.redirect('/recipes');
-  }
-  if (!recipe.createdBy.equals(req.user._id)) {
-    req.flash('error_msg', 'Not authorized');
-    return res.redirect('/recipes');
-  }
-  await recipe.deleteOne();
-  req.flash('success_msg', 'Recipe deleted');
-  res.redirect('/recipes');
-});
+router.get('/:id', requireLogin, recipeController.showRecipe);
+
+router.get('/:id/edit', requireLogin, recipeController.editRecipeForm);
+
+router.post('/:id', requireLogin, upload.single('image'), recipeController.updateRecipe);
+
+router.post('/:id/delete', requireLogin, recipeController.deleteRecipe);
 
 module.exports = router;

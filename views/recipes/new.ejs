@@ -1,21 +1,65 @@
-<%- include('../partials/header') %>
-
-<h2>New Recipe</h2>
-
-<form action="/recipes" method="POST">
-  <label>Title:</label><br/>
-  <input type="text" name="title" required /><br/>
-
-  <label>Description:</label><br/>
-  <textarea name="description"></textarea><br/>
-
-  <label>Ingredients (comma-separated):</label><br/>
-  <input type="text" name="ingredients" /><br/>
-
-  <label>Steps (one per line):</label><br/>
-  <textarea name="steps" rows="5"></textarea><br/>
-
-  <button type="submit">Create Recipe</button>
-</form>
-
-<%- include('../partials/footer') %>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Add Recipe</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
+</head>
+<body>
+<div class="container mt-4">
+  <h1>Add Recipe</h1>
+  <form action="/recipes" method="POST" enctype="multipart/form-data">
+    <div class="mb-2 position-relative">
+      <label>Search Ingredient</label>
+      <input type="text" class="form-control ingredient-search-input" placeholder="Type to search ingredients">
+    </div>
+    <div class="mb-2">
+      <label>Ingredients</label>
+      <div id="ingredients-list"></div>
+      <button type="button" class="btn btn-secondary btn-sm" onclick="addIngredient()">Add Ingredient</button>
+    </div>
+    <div class="mb-2">
+      <label>Title</label>
+      <input name="title" class="form-control" required>
+    </div>
+    <div class="mb-2">
+      <label>Description</label>
+      <textarea name="description" class="form-control"></textarea>
+    </div>
+    <div class="mb-2">
+      <label>Image</label>
+      <input type="file" name="image" class="form-control">
+    </div>
+    <div class="mb-2">
+      <label>Instructions</label>
+      <textarea name="instructions" class="form-control"></textarea>
+    </div>
+    <div class="mb-2 form-check">
+      <input type="checkbox" name="public" class="form-check-input" id="public">
+      <label class="form-check-label" for="public">Public</label>
+    </div>
+    <button class="btn btn-success">Create Recipe</button>
+  </form>
+  <a href="/recipes">Back</a>
+</div>
+<script>
+function addIngredient(name = '', quantity = '') {
+  const div = document.createElement('div');
+  div.classList.add('input-group', 'mb-1');
+  div.innerHTML = `
+    <input name="ingredients[${document.querySelectorAll('#ingredients-list .input-group').length}][name]" class="form-control" placeholder="Ingredient" value="${name}" required>
+    <input name="ingredients[${document.querySelectorAll('#ingredients-list .input-group').length}][quantity]" class="form-control" placeholder="Quantity" value="${quantity}" required>
+    <button type="button" class="btn btn-danger" onclick="this.parentElement.remove(); resetIngredientIndexes();">X</button>
+  `;
+  document.getElementById('ingredients-list').appendChild(div);
+  resetIngredientIndexes();
+}
+function resetIngredientIndexes() {
+  document.querySelectorAll('#ingredients-list .input-group').forEach((div, i) => {
+    div.querySelectorAll('input')[0].setAttribute('name', `ingredients[${i}][name]`);
+    div.querySelectorAll('input')[1].setAttribute('name', `ingredients[${i}][quantity]`);
+  });
+}
+</script>
+<script src="/js/ingredientSearch.js"></script>
+</body>
+</html>
